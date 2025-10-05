@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -12,8 +13,19 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
+        DATABASE_URI: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.number().required(),
+        RABBITMQ_URL: Joi.string().required(),
       }),
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('DATABASE_URI'),
+      }),
+      inject: [ConfigService],
     }),
     UsersModule,
     AuthModule,
