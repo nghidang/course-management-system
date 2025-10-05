@@ -1,26 +1,34 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { UserRepository } from '../core/repositories/user.repository';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    private readonly userRepo: UserRepository,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async register(dto: RegisterDto) {
+    const existing = await this.userRepo.findByEmail(dto.email);
+    if (existing) throw new BadRequestException('User exists');
+    const user = await this.userRepo.create({
+      ...dto,
+      role: dto.role || 'Student',
+    });
+    return { token: this.jwtService.sign({ sub: user._id, role: user.role }) };
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async login(dto: LoginDto) {
+    const user = await this.userRepo.findByEmail(dto.email);
+    if (!user || user.password !== dto.password)
+      throw new BadRequestException('Invalid credentials');
+    return { token: this.jwtService.sign({ sub: user._id, role: user.role }) };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async getUserById(id: string) {
+    return this.userRepo.findById(id);
   }
 }
