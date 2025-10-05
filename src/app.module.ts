@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -7,7 +9,17 @@ import { CoursesModule } from './courses/courses.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, CoursesModule, EnrollmentsModule],
+  imports: [
+    ConfigModule.forRoot({
+      validationSchema: Joi.object({
+        JWT_SECRET: Joi.string().required(),
+      }),
+    }),
+    UsersModule,
+    AuthModule,
+    CoursesModule,
+    EnrollmentsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
