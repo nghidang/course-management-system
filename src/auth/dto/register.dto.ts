@@ -10,7 +10,7 @@ export class RegisterDto {
   @IsString()
   password: string;
 
-  @ApiProperty({ enum: ['Student', 'Instructor'] })
-  @IsEnum(['Student', 'Instructor'])
-  role: 'Student' | 'Instructor';
+  @ApiProperty({ enum: ['Student', 'Instructor', 'Admin'] })
+  @IsEnum(['Student', 'Instructor', 'Admin'])
+  role: 'Student' | 'Instructor' | 'Admin';
 }
