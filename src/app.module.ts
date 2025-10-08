@@ -19,7 +19,14 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      envFilePath: [
+        process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev',
+        '.env',
+      ],
       validationSchema: Joi.object({
+        NODE_ENV: Joi.string()
+          .valid('development', 'production')
+          .default('development'),
         DATABASE_URI: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         REDIS_HOST: Joi.string().required(),
