@@ -34,9 +34,9 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     }),
     CacheModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (config: ConfigService) => {
-        const host = config.get<string>('REDIS_HOST');
-        const port = config.get<number>('REDIS_PORT');
+      useFactory: (configService: ConfigService) => {
+        const host = configService.get<string>('REDIS_HOST');
+        const port = configService.get<number>('REDIS_PORT');
         const redisUrl = `redis://${host}:${port}`;
 
         return {
