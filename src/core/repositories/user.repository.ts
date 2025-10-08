@@ -10,6 +10,10 @@ export class UserRepository extends BaseRepository<User> {
     super(model);
   }
 
+  async findById(id: string): Promise<User | null> {
+    return this.model.findById(id).select('-password').exec();
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.model.findOne({ email });
   }

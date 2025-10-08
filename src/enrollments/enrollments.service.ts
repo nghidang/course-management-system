@@ -49,6 +49,10 @@ export class EnrollmentsService {
     let enrollments: Enrollment[] = [];
 
     if (courseId) {
+      if (!Types.ObjectId.isValid(courseId)) {
+        throw new BadRequestException('Invalid courseId format');
+      }
+
       const course = await this.courseRepo.findById(courseId);
       if (course?.instructor.toString() !== instructorId)
         throw new ForbiddenException();
