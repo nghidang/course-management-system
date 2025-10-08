@@ -5,6 +5,8 @@ import {
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { InjectQueue } from '@nestjs/bullmq';
+import type { Queue } from 'bullmq';
 import { EnrollmentRepository } from '../core/repositories/enrollment.repository';
 import { CourseRepository } from '../core/repositories/course.repository';
 import { Enrollment } from './schemas/enrollment.schema';
@@ -15,9 +17,13 @@ export class EnrollmentsService {
     private readonly enrollmentRepo: EnrollmentRepository,
     private readonly courseRepo: CourseRepository,
     private readonly eventEmitter: EventEmitter2,
+    @InjectQueue('enrollment') private readonly enrollmentQueue: Queue,
   ) {
     this.eventEmitter.on('enrollment.created', (data) => {
       console.log('Event received:', data);
+      this.enrollmentQueue.add('sendEmail', data).catch((err) => {
+        console.error('Failed to add sendEmail job:', err);
+      });
     });
   }
 
