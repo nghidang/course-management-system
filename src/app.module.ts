@@ -6,6 +6,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis from '@keyv/redis';
 import { Keyv } from 'keyv';
 import { CacheableMemory } from 'cacheable';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -52,6 +53,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
       },
       inject: [ConfigService],
     }),
+    EventEmitterModule.forRoot(),
     UsersModule,
     AuthModule,
     CoursesModule,
