@@ -27,6 +27,9 @@ export class EnrollmentRepository extends BaseRepository<Enrollment> {
     studentId: string,
     courseId: string,
   ): Promise<Enrollment | null> {
-    return this.model.findOne({ student: studentId, course: courseId });
+    return this.model.findOne({
+      student: new Types.ObjectId(studentId),
+      course: new Types.ObjectId(courseId),
+    });
   }
 }

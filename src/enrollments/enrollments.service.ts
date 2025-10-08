@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { Types } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EnrollmentRepository } from '../core/repositories/enrollment.repository';
 import { CourseRepository } from '../core/repositories/course.repository';
 import { Enrollment } from './schemas/enrollment.schema';
@@ -13,7 +14,12 @@ export class EnrollmentsService {
   constructor(
     private readonly enrollmentRepo: EnrollmentRepository,
     private readonly courseRepo: CourseRepository,
-  ) {}
+    private readonly eventEmitter: EventEmitter2,
+  ) {
+    this.eventEmitter.on('enrollment.created', (data) => {
+      console.log('Event received:', data);
+    });
+  }
 
   async enroll(courseId: string, studentId: string) {
     const existing = await this.enrollmentRepo.findByStudentAndCourse(
@@ -25,6 +31,10 @@ export class EnrollmentsService {
     const enrollment = await this.enrollmentRepo.create({
       student: new Types.ObjectId(studentId),
       course: new Types.ObjectId(courseId),
+    });
+    this.eventEmitter.emit('enrollment.created', {
+      studentId,
+      courseId,
     });
     return enrollment;
   }
